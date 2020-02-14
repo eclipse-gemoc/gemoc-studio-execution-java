@@ -95,7 +95,7 @@ public class CreateDSAProjectHandler extends AbstractDslSelectHandler implements
 		
 		String ecoreURI = null;
 		IFile dslFile = getDslFileFromSelection(event);
-		Resource res = (new ResourceSetImpl()).getResource(URI.createURI(dslFile.getFullPath().toOSString()), true);
+		Resource res = (new ResourceSetImpl()).getResource(URI.createPlatformResourceURI(dslFile.getFullPath().toOSString(), true), true);
 		Dsl dsl = (Dsl) res.getContents().get(0);
 		Optional<Entry> syntax = dsl.getEntries()
 			.stream()
