@@ -1,4 +1,4 @@
-package rules;
+package org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider;
 
 import java.util.ArrayList;
 import org.eclipse.core.resources.*;

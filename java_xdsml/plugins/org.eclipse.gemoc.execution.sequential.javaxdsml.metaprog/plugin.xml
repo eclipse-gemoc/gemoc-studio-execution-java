@@ -5,7 +5,7 @@
          point="org.eclipse.gemoc.gemoc_language_workbench.metaprog">
       <approach
             name="kermeta3"
-            validator="metaprogramming.kermeta3approach.Kermeta3RuleProvider">
+            validator="org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider.Kermeta3RuleProvider">
       </approach>
    </extension>
 

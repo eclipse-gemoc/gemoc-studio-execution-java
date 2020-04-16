@@ -1,4 +1,4 @@
-package metaprogramming.kermeta3approach;
+package org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -8,7 +8,6 @@ import org.eclipse.gemoc.xdsmlframework.api.extensions.metaprog.IRule;
 import org.eclipse.gemoc.xdsmlframework.api.extensions.metaprog.IRuleProvider;
 import org.eclipse.gemoc.xdsmlframework.api.extensions.metaprog.EcoreRule;
 
-import rules.*;
 
 /**
  * RuleProvider used for the Kermeta3 meta-programming approach
