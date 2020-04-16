@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.gemoc.gemoc_language_workbench.metaprog">
+      <approach
+            name="kermeta3"
+            validator="metaprogramming.kermeta3approach.Kermeta3RuleProvider">
+      </approach>
+   </extension>
+
+</plugin>
