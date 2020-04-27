@@ -87,7 +87,7 @@ public class Kermeta3Rule implements IRule {
 			}
 			
 			if(!aspectsAnnotation.contains("InitializeModel")) {
-				return (new Message("No method annotated with \"InitializeModel\" in the project", Severity.ERROR));
+				return (new Message("No method annotated with \"InitializeModel\" in the project", Severity.WARNING));
 			}
 			
 		}
