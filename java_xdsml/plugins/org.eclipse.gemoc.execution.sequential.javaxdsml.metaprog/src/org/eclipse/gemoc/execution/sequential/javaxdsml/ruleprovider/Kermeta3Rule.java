@@ -50,24 +50,11 @@ public class Kermeta3Rule implements IRule {
 			
 			ArrayList<String> aspectsName = new ArrayList<>();
 			ArrayList<String> aspectsAnnotation = new ArrayList<>();
-			ArrayList<String> aspectsCheck = new ArrayList<>();
 			
 			for(String s : aspectsFields.split(",")) {
-				aspectsCheck.add(s);
-			}
-				
-			if(aspectsCheck.size() > 1) {
-				aspectsCheck.remove(0);
-				for(String s : aspectsCheck) {
-					if(!s.startsWith(" ")) {
-						return (new Message("Seperate aspects with a commma and a space", Severity.WARNING));
-					}
-				}
+				aspectsName.add(s.trim());
 			}
 			
-			for(String s :aspectsFields.split(", ")) {
-				aspectsName.add(s);
-			}
 			
 			for(String asp : aspectsName) {
 				try {
