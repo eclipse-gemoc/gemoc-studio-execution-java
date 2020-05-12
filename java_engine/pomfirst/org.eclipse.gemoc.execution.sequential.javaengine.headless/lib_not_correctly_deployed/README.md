@@ -1,0 +1,1 @@
+these libs are currently not available in maven central we use a local version waiting for a better solution
