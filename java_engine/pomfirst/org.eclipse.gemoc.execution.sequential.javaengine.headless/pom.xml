@@ -15,7 +15,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
-		<xtend.version>2.14.0</xtend.version>
+		<xtend.version>2.19.0</xtend.version>
 	</properties>
 
 	<dependencies>
@@ -175,7 +175,7 @@
 			<url>https://repo.eclipse.org/content/groups/gemoc/</url>
 		</repository>
 		<repository>
-			<id>>maven.inria.fr</id>
+			<id>>maven-inria-fr</id>
 			<name>Maven Inria</name>
 			<releases>
 				<enabled>true</enabled>
