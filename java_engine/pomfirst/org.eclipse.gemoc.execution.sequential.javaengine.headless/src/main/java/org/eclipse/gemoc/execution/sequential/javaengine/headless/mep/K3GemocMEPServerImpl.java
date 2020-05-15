@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class K3GemocMEPServerImpl<T extends LanguageDefinitionExtension> extends GemocMEPServerImpl {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger("K3GemocMEPServerImpl");
+	private static final Logger LOGGER = LoggerFactory.getLogger(K3GemocMEPServerImpl.class);
 	
 	protected T languageDefinition;
 	protected ISequentialRunConfiguration runConfiguration;
