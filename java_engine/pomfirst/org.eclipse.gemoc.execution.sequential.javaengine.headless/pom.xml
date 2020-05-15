@@ -57,7 +57,7 @@
 
 		<!-- GEMOC Java Engine dependencies -->
 		<dependency>
-			<groupId>org.eclipse.gemoc.execution.sequential.java</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.execution.sequential.javaengine</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
 		</dependency>
@@ -66,26 +66,22 @@
 			<artifactId>fr.inria.diverse.k3.al.annotationprocessor</artifactId>
 			<version>3.2.3-SNAPSHOT</version>
 		</dependency>
+		
 		<dependency>
-			<groupId>org.eclipse.gemoc.trace.commons</groupId>
-			<artifactId>org.eclipse.gemoc.trace.commons.model</artifactId>
-			<version>3.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.gemoc.trace.commons</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.trace.commons</artifactId>
 			<version>3.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.gemoc.modeldebugging.executionframework</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.executionframework.debugger</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>org.eclipse.gemoc.modeldebugging.executionframework</groupId>
 			<artifactId>org.eclipse.gemoc.executionframework.engine</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
-		</dependency>
+		</dependency> -->
 
 		<!-- TODO find a more recent version -->
 		<!-- <dependency> <groupId>org.eclipse.emf</groupId> <artifactId>transaction</artifactId> 
@@ -95,57 +91,57 @@
 		<dependency>
 			<groupId>org.eclipse.emf</groupId>
 			<artifactId>org.eclipse.emf.edit</artifactId>
-			<version>2.16.0</version>
+			<version>[2.16.0,3.0.0)</version>
 		</dependency>
 
-		<dependency>
+	<!-- 	<dependency>
 			<groupId>org.eclipse.gemoc.commons</groupId>
 			<artifactId>org.eclipse.gemoc.commons.eclipse</artifactId>
 			<version>3.0.0-SNAPSHOT</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
-			<groupId>org.eclipse.gemoc.commons</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.commons.utils</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.gemoc.commons</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.commons.eclipse.pde</artifactId>
 			<version>3.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.eclipse.gemoc.commons</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.commons.eclipse.messagingsystem.api</artifactId>
 			<version>3.0.0-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>org.eclipse.gemoc.modeldebugging.framework.commons</groupId>
 			<artifactId>org.eclipse.gemoc.xdsmlframework.api</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
-			<groupId>org.eclipse.gemoc.modeldebugging.framework.commons</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.xdsmlframework.commons</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+<!-- 		<dependency>
 			<groupId>org.eclipse.gemoc.trace.commons</groupId>
 			<artifactId>org.eclipse.gemoc.trace.gemoc.api</artifactId>
 			<version>3.0.1-SNAPSHOT</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
-			<groupId>DSLDebugger</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.dsl.debug.ide</artifactId>
 			<version>3.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>DSLDebugger</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.dsl.debug</artifactId>
 			<version>3.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>DSLDebugger</groupId>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.dsl.debug.edit</artifactId>
 			<version>3.0.1-SNAPSHOT</version>
 		</dependency>

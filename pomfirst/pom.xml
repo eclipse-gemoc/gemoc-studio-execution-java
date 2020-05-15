@@ -24,6 +24,7 @@
 
 	<modules>
 		<module>../java_engine/pomfirst</module>
+		<module>../java_engine/plugins/org.eclipse.gemoc.execution.sequential.javaengine/pomfirst</module>
 	</modules>
 
 </project>
