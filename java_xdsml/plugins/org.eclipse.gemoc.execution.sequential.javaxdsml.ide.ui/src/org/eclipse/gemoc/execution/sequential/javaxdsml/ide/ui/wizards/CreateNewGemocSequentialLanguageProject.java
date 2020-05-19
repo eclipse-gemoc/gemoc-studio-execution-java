@@ -176,8 +176,8 @@ public class CreateNewGemocSequentialLanguageProject extends AbstractNewProjectW
 		try {
 			ManifestChanger manifestChanger = new ManifestChanger(project.getFile("META-INF/MANIFEST.MF"));
 
-			manifestChanger.addPluginDependency("org.eclipse.xtend.lib", "2.14.0", false, true);
-			manifestChanger.addPluginDependency("org.eclipse.xtext.xbase.lib", "2.14.0", false, true);
+			manifestChanger.addPluginDependency("org.eclipse.xtend.lib", "2.21.0", false, true);
+			manifestChanger.addPluginDependency("org.eclipse.xtext.xbase.lib", "2.21.0", false, true);
 			manifestChanger.addPluginDependency("com.google.guava", "0.0.0", false, true);
 			manifestChanger.addPluginDependency("org.eclipse.emf.ecore.xmi", "2.8.0", true, true);
 			manifestChanger.addPluginDependency("org.eclipse.emf.ecore", "2.8.0", true, true);
