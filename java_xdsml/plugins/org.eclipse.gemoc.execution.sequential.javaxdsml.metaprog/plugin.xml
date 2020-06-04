@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.gemoc.gemoc_language_workbench.metaprog">
       <approach
-            name="kermeta3"
+            name="org.eclipse.gemoc.metaprog.kermeta3"
             validator="org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider.Kermeta3RuleProvider">
          <languageComponent
                description="Entry for the Kermeta3 metaprogramming approach.\n Used to list the various aspects required for the language."
