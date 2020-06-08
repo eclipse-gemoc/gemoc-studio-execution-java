@@ -4,6 +4,7 @@
    <extension
          point="org.eclipse.gemoc.gemoc_language_workbench.metaprog">
       <approach
+            dependencies="org.eclipse.gemoc.metaprog.ecore"
             name="org.eclipse.gemoc.metaprog.kermeta3"
             validator="org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider.Kermeta3RuleProvider">
          <languageComponent
