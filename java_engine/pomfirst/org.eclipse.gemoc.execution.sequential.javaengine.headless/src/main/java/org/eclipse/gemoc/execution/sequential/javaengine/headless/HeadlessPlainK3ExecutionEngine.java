@@ -3,12 +3,14 @@ package org.eclipse.gemoc.execution.sequential.javaengine.headless;
 
 
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -31,7 +33,6 @@ import org.eclipse.core.runtime.spi.IRegistryProvider;
 import org.eclipse.core.runtime.spi.RegistryStrategy;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -50,16 +51,21 @@ import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StepK
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopCondition;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopEvent;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopReason;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ToggleBreakpointCommand;
 import org.eclipse.gemoc.executionframework.debugger.DefaultDynamicPartAccessor;
 import org.eclipse.gemoc.executionframework.debugger.IDynamicPartAccessor;
 import org.eclipse.gemoc.executionframework.debugger.MutableField;
+import org.eclipse.gemoc.executionframework.engine.commons.EngineContextException;
 import org.eclipse.gemoc.executionframework.engine.commons.GenericModelExecutionContext;
 import org.eclipse.gemoc.executionframework.engine.commons.K3DslHelper;
 import org.eclipse.gemoc.executionframework.engine.commons.sequential.ISequentialRunConfiguration;
 import org.eclipse.gemoc.executionframework.engine.core.AbstractCommandBasedSequentialExecutionEngine;
 import org.eclipse.gemoc.executionframework.engine.core.EngineStoppedException;
+import org.eclipse.gemoc.executionframework.mep.engine.IMEPEngine;
+import org.eclipse.gemoc.executionframework.mep.engine.IMEPEventListener;
+import org.eclipse.gemoc.executionframework.mep.events.StoppedReason;
+import org.eclipse.gemoc.executionframework.mep.types.Variable;
+import org.eclipse.gemoc.xdsmlframework.api.core.ExecutionMode;
 import org.eclipse.gemoc.xdsmlframework.api.extensions.languages.LanguageDefinitionExtension;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -70,6 +76,9 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
+import org.eclipse.jdt.internal.compiler.ast.Clinit;
+import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.eclipse.lsp4j.debug.TerminatedEventArguments;
 import org.eclipse.xtext.nodemodel.ICompositeNode;
 import org.eclipse.xtext.nodemodel.util.NodeModelUtils;
 import org.osgi.framework.Bundle;
@@ -90,7 +99,7 @@ import fr.inria.diverse.k3.al.annotationprocessor.stepmanager.StepManagerRegistr
  * @author Didier Vojtisek<didier.vojtisek@inria.fr>
  *
  */
-public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtension> extends AbstractCommandBasedSequentialExecutionEngine<AbstractHeadlessExecutionContext<ISequentialRunConfiguration,  L >, ISequentialRunConfiguration> implements IStepManager {
+public class HeadlessPlainK3ExecutionEngine<L extends LanguageDefinitionExtension> extends AbstractCommandBasedSequentialExecutionEngine<AbstractHeadlessExecutionContext<ISequentialRunConfiguration,  L >, ISequentialRunConfiguration> implements IStepManager {
 //public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtension> extends AbstractSequentialExecutionEngine<AbstractHeadlessExecutionContext<ISequentialRunConfiguration,  L >, ISequentialRunConfiguration>		implements IStepManager {
 
 
@@ -108,7 +117,7 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 	private Map<Integer, Boolean> breakpoints;
 	
 	private ByteArrayOutputStream outputStream;
-
+	
 	@Override
 	public String engineKindName() {
 		return "GEMOC Kermeta HEADLESS Sequential Engine";
@@ -470,7 +479,7 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 			if (node != null && breakpoints.containsKey(node.getStartLine())) {
 				continueSimulation = false;
 				updateVariables();
-				sendStopEvent(StopReason.REACHED_BREAKPOINT);
+				sendStopEvent(StoppedReason.REACHED_BREAKPOINT);
 				increment(finishDoStepSemaphore);
 				decrement(startDoStepSemaphore);
 				stepCaller = eObj;
@@ -663,11 +672,6 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 		}
 		return resource;
 	}
-
-	// 
-	// Simulation Server
-
-	
 	
 	// semaphore for locking doStep
 	Semaphore startDoStepSemaphore;
@@ -755,19 +759,15 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 				increment(startDoStepSemaphore);
 				decrement(finishDoStepSemaphore);
 			}
-			/*
-			if(clientCommand instanceof SetVariableCommand) {
-				String varQN = ((SetVariableCommand) clientCommand).variableQualifiedName;
-				Object newValue = ((SetVariableCommand) clientCommand).newValue; 
-				Boolean res = this.setVariable(varQN, newValue);
-				cout.writeObject(res);
-			}*/
 			System.out.println("wait for a new command.");
 		} while(!simulationEnded);
+		
 		solverThread.join();
+
 		if (stopReceived) {
 			cout.writeObject(Boolean.TRUE);
 		}
+		clientSocket.close();
 		serverSocket.close();
 		
 		if (exceptionQueue.isEmpty()) {
@@ -800,7 +800,7 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 					}
 				}
 				if (continueSimulation) {
-					sendStopEvent(StopReason.REACHED_SIMULATION_END);
+					sendStopEvent(StoppedReason.REACHED_SIMULATION_END);
 				}
 				updateVariables();
 				simulationEnded = true;
@@ -814,7 +814,7 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 		return simulationThread;
 	}
 	
-	public void sendStopEvent(StopReason stopReason) {
+	public void sendStopEvent(StoppedReason stopReason) {
 		StopEvent stopEvent = new StopEvent();
 		stopEvent.stopReason = stopReason;
 		try {
@@ -832,9 +832,9 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 		updateVariables();
 		
 		if (simulationEnded) {
-			lastStopcondition = new StopCondition(StopReason.REACHED_SIMULATION_END);
+			lastStopcondition = new StopCondition(StoppedReason.REACHED_SIMULATION_END);
 		} else {
-			lastStopcondition = new StopCondition(StopReason.REACHED_NEXT_LOGICAL_STEP);
+			lastStopcondition = new StopCondition(StoppedReason.REACHED_NEXT_LOGICAL_STEP);
 		}
 		return lastStopcondition;
 	}

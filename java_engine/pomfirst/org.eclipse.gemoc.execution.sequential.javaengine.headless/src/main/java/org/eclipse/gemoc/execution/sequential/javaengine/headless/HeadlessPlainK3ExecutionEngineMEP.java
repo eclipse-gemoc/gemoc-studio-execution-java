@@ -1,5 +1,6 @@
-package org.eclipse.gemoc.execution.sequential.javaengine.headless.mep;
+package org.eclipse.gemoc.execution.sequential.javaengine.headless;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,9 +11,6 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.AbstractHeadlessExecutionContext;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.HeadlessJavaEngineSequentialRunConfiguration;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.HeadlessPlainK3ExecutionEngine;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ClearBreakpointsCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ContinueCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.DoStepCommand;
@@ -23,55 +21,59 @@ import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StepK
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopCondition;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopEvent;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopReason;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ToggleBreakpointCommand;
 import org.eclipse.gemoc.executionframework.engine.commons.EngineContextException;
 import org.eclipse.gemoc.executionframework.engine.commons.sequential.ISequentialRunConfiguration;
-import org.eclipse.gemoc.executionframework.mep.launch.GemocMEPServerImpl;
+import org.eclipse.gemoc.executionframework.mep.engine.IMEPEngine;
+import org.eclipse.gemoc.executionframework.mep.engine.IMEPEventListener;
+import org.eclipse.gemoc.executionframework.mep.events.StoppedReason;
+import org.eclipse.gemoc.executionframework.mep.launch.MEPLauncherParameters;
+import org.eclipse.gemoc.executionframework.mep.types.SourceBreakpoint;
+import org.eclipse.gemoc.executionframework.mep.types.Variable;
+import org.eclipse.gemoc.xdsmlframework.api.core.ExecutionMode;
 import org.eclipse.gemoc.xdsmlframework.api.extensions.languages.LanguageDefinitionExtension;
-import org.eclipse.lsp4j.debug.StackFrame;
-import org.eclipse.lsp4j.debug.StoppedEventArguments;
-import org.eclipse.lsp4j.debug.TerminatedEventArguments;
-import org.eclipse.lsp4j.debug.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class K3GemocMEPServerImpl<T extends LanguageDefinitionExtension> extends GemocMEPServerImpl {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(K3GemocMEPServerImpl.class);
-	
-	protected T languageDefinition;
-	protected ISequentialRunConfiguration runConfiguration;
+public class HeadlessPlainK3ExecutionEngineMEP<L extends LanguageDefinitionExtension> extends HeadlessPlainK3ExecutionEngine<L> implements IMEPEngine {	
+	private static final Logger LOGGER = LoggerFactory.getLogger("HeadlessPlainK3ExecutionEngineMEP");
 	
 	Socket gemocServer = null;
 	ObjectInputStream gemocServerOutput = null;
 	ObjectOutputStream gemocServerInput = null;
 	List<Object> serverOutputBuffer = null;
 	Semaphore serverOutputBufferSem = null;
+	L languageDefinition = null;
+	ISequentialRunConfiguration runConfiguration = null;
 	
-
-	HeadlessPlainK3ExecutionEngine currentExecutionEngine;
+	public HeadlessPlainK3ExecutionEngineMEP(L languageDefinition) {
+		this.languageDefinition = languageDefinition;
+	}
 	
 	@Override
-	public void launchGemocEngine(Resource resourceModel, String modelEntryPoint, String methodEntryPoint, String initializationMethod, String initializationMethodArgs) {
+	public void internalLaunchEngine(MEPLauncherParameters launchParameters) {
+		Resource resourceModel = launchParameters.resourceModel;
+		String modelEntryPoint = launchParameters.modelEntryPoint;
+		String methodEntryPoint = launchParameters.methodEntryPoint;
+		String initializationMethod = launchParameters.initializationMethod;
+		String initializationMethodArgs = launchParameters.initializationMethodArgs;
+		
 		try {
 			LOGGER.info("START launchGemocEngine()");
-			HeadlessPlainK3ExecutionEngine executionEngine = new HeadlessPlainK3ExecutionEngine(); 
 									
 			runConfiguration = new HeadlessJavaEngineSequentialRunConfiguration(resourceModel.getURI(), languageDefinition.getName(),
 					modelEntryPoint, methodEntryPoint, initializationMethod, initializationMethodArgs);
 			
-			AbstractHeadlessExecutionContext<ISequentialRunConfiguration, T> executioncontext = newExecutionContext(resourceModel);
+			AbstractHeadlessExecutionContext<ISequentialRunConfiguration, L> executioncontext = newExecutionContext(resourceModel);
 			
 			//HeadlessDebuggerAddon debuggerAddon =  new HeadlessDebuggerAddon();
 			
 			
 			//executioncontext.getExecutionPlatform().addEngineAddon(debuggerAddon);
 			executioncontext.initializeResourceModel();
-			executionEngine.initialize(executioncontext);
+			this.initialize(executioncontext);
 			
-			executionEngine.start();
-			currentExecutionEngine = executionEngine;
+			this.start();
 			
 			boolean connected = false;
 			// Retry until server is available
@@ -87,6 +89,8 @@ public abstract class K3GemocMEPServerImpl<T extends LanguageDefinitionExtension
 			gemocServerOutput = new ObjectInputStream(gemocServer.getInputStream());
 			gemocServerInput = new ObjectOutputStream(gemocServer.getOutputStream());
 			
+			final IMEPEngine currentEngine = this;
+			
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -97,13 +101,19 @@ public abstract class K3GemocMEPServerImpl<T extends LanguageDefinitionExtension
 						try {
 							readData = gemocServerOutput.readObject();
 							if (readData instanceof OutputEvent) {
-								sendOutput(((OutputEvent) readData).output);
+								for (IMEPEventListener eventListener : mepEventListeners) {
+									eventListener.outputReceived(new org.eclipse.gemoc.executionframework.mep.events.Output(currentEngine, ((OutputEvent) readData).output));
+								}
 							} else if (readData instanceof StopEvent) {
-								manageStop(((StopEvent) readData).stopReason);
+								for (IMEPEventListener eventListener : mepEventListeners) {
+									eventListener.stopReceived(new org.eclipse.gemoc.executionframework.mep.events.Stopped(currentEngine, ((StopEvent) readData).stopReason));
+								}
 							} else {
 								serverOutputBuffer.add(readData);
 								serverOutputBufferSem.release();
 							}
+						} catch (EOFException e) {
+							readData = null;
 						} catch (ClassNotFoundException | IOException e) {
 							e.printStackTrace();
 							break;
@@ -111,71 +121,73 @@ public abstract class K3GemocMEPServerImpl<T extends LanguageDefinitionExtension
 					} while (readData != null);
 				}
 			}).start();
-			//executionEngine.thread.join();
 		} catch (Exception e) {
 			LOGGER.error(e.getMessage(), e);
 		}
 	}
+	
+	protected AbstractHeadlessExecutionContext<ISequentialRunConfiguration, L> newExecutionContext(Resource resourceModel) throws EngineContextException {
+		return new AbstractHeadlessExecutionContext<ISequentialRunConfiguration, L>(
+				runConfiguration, 
+				ExecutionMode.Run, 
+				languageDefinition, 
+				new HeadlessExecutionWorkspace(), 
+				new HeadlessExecutionPlatform()){				
+					@Override
+					public void initializeResourceModel() {
+						_resourceModel = resourceModel;
+					}
+			};
+	}
+	
+	@Override
+	public StoppedReason internalNext() {
+		return internalDoStep(StepKind.NEXT);
+	}
 
-	abstract protected AbstractHeadlessExecutionContext<ISequentialRunConfiguration, T> newExecutionContext(Resource resourceModel) throws EngineContextException;
-	
 	@Override
-	protected void internalNext() {
-		internalDoStep(StepKind.NEXT);
+	public StoppedReason internalStepIn() {
+		return internalDoStep(StepKind.STEP_IN);
+	}
+
+	@Override
+	public StoppedReason internalStepOut() {
+		return internalDoStep(StepKind.STEP_OUT);
 	}
 	
-	@Override
-	protected void internalStepIn() {
-		internalDoStep(StepKind.STEP_IN);
-	}
-	
-	@Override
-	protected void internalStepOut() {
-		internalDoStep(StepKind.STEP_OUT);
-	}
-	
-	private void internalDoStep(StepKind stepKind) {
+	private StoppedReason internalDoStep(StepKind stepKind) {
 		DoStepCommand command = new DoStepCommand();
 		command.stepKind = stepKind;
 		try {
 			gemocServerInput.writeObject(command);
 			serverOutputBufferSem.acquire();
 			Object output = serverOutputBuffer.remove(0);
-			manageStop(((StopCondition) output).stopReason);
+			return (((StopCondition) output).stopReason);
 		} catch (IOException | InterruptedException  e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 	
-	protected void manageStop(StopReason stopReason) {
-		switch (stopReason) {
-			case REACHED_BREAKPOINT:
-				StoppedEventArguments stoppedArgsBreakpoint = new StoppedEventArguments();
-				stoppedArgsBreakpoint.setReason("breakpoint");
-				stoppedArgsBreakpoint.setDescription("Reached breakpoint");
-				client.stopped(stoppedArgsBreakpoint);
-				break;
-			case REACHED_NEXT_LOGICAL_STEP:
-				StoppedEventArguments stoppedArgsStep = new StoppedEventArguments();
-				stoppedArgsStep.setReason("step");
-				stoppedArgsStep.setDescription("Reached new logical step");
-				client.stopped(stoppedArgsStep);
-				break;
-			case REACHED_SIMULATION_END:
-				TerminatedEventArguments terminatedArgs = new TerminatedEventArguments();
-				client.terminated(terminatedArgs);
-				simulationStarted = false;
-				break;
-			case TIME:
-				break;
-			default:
-				break;
+	@Override
+	public void internalSetBreakpoints(SourceBreakpoint[] breakpoints) {
+		ClearBreakpointsCommand clearCommand = new ClearBreakpointsCommand();
+		ToggleBreakpointCommand toggleCommand;
+		try {
+			gemocServerInput.writeObject(clearCommand);
+			for (SourceBreakpoint bp : breakpoints) {
+				toggleCommand = new ToggleBreakpointCommand();
+				toggleCommand.line = (int) bp.getLine();
+				gemocServerInput.writeObject(toggleCommand);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 	@Override
-	protected void internalTerminate() {
-		currentExecutionEngine.stop();
+	public void internalTerminate() {
+		this.stop();
 		StopCommand stopCommand = new StopCommand();
 		try {
 			gemocServerInput.writeObject(stopCommand);
@@ -185,9 +197,19 @@ public abstract class K3GemocMEPServerImpl<T extends LanguageDefinitionExtension
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
-	protected Variable[] internalVariables() {
+	public void internalContinue() {
+		ContinueCommand command = new ContinueCommand();
+		try {
+			gemocServerInput.writeObject(command);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public Variable[] internalVariables() {
 		ListVariablesCommand listCommand = new ListVariablesCommand();
 		try {
 			gemocServerInput.writeObject(listCommand);
@@ -195,14 +217,13 @@ public abstract class K3GemocMEPServerImpl<T extends LanguageDefinitionExtension
 			List<String> variableNames = (ArrayList<String>) serverOutputBuffer.remove(0);
 			Variable[] variables = new Variable[variableNames.size()];
 			for (int i = 0; i < variables.length; i++) {
-				Variable variable = new Variable();
-				variable.setName(variableNames.get(i));
+				String name = variableNames.get(i);
 				GetVariableCommand variableCommand = new GetVariableCommand();
 				variableCommand.variableQualifiedName = variableNames.get(i);
 				gemocServerInput.writeObject(variableCommand);
 				serverOutputBufferSem.acquire();
-				variable.setValue((String) serverOutputBuffer.remove(0));
-				variables[i] = variable;
+				String value = (String) serverOutputBuffer.remove(0);
+				variables[i] = new Variable(name, value);
 			}
 			return variables;
 		} catch (IOException | InterruptedException e) {
@@ -212,57 +233,37 @@ public abstract class K3GemocMEPServerImpl<T extends LanguageDefinitionExtension
 	}
 
 	@Override
-	protected StackFrame[] internalStackTrace() {
-		List<org.eclipse.gemoc.execution.sequential.javaengine.headless.StackFrame> gemocFrames =
-				currentExecutionEngine.getStackTrace();
-		StackFrame[] mepFrames = new StackFrame[gemocFrames.size()];
+	public org.eclipse.gemoc.executionframework.mep.types.StackFrame[] internalStackTrace() {
+		List<StackFrame> gemocFrames =
+				this.getStackTrace();
+		org.eclipse.gemoc.executionframework.mep.types.StackFrame[] mepFrames =
+				new org.eclipse.gemoc.executionframework.mep.types.StackFrame[gemocFrames.size()];
 		for (int i = 0; i < gemocFrames.size(); i++) {
-			StackFrame mepFrame = new StackFrame();
-			mepFrame.setId((long) i);
-			mepFrame.setName(gemocFrames.get(i).getName());
-			mepFrame.setLine((long) gemocFrames.get(i).getLine());
-			mepFrame.setColumn(0L);
-			mepFrames[i] = mepFrame;
+			mepFrames[i] = new org.eclipse.gemoc.executionframework.mep.types.StackFrame((long) i,
+					gemocFrames.get(i).getName(), (long) gemocFrames.get(i).getLine(), 0L);
 		}
 		return mepFrames;
 	}
-	
-	
 
 	@Override
-	protected String internalSource() {
-		return currentExecutionEngine.getSourceContent();
+	public String internalSource() {
+		return this.getSourceContent();
 	}
 
+	private List<IMEPEventListener> mepEventListeners = new ArrayList<>();
+	
 	@Override
-	protected void internalClearBreakpoints() {
-		ClearBreakpointsCommand command = new ClearBreakpointsCommand();
-		try {
-			gemocServerInput.writeObject(command);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void addMEPEventListener(IMEPEventListener listener) {
+		this.mepEventListeners.add(listener);
 	}
 
 	@Override
-	protected void internalToggleBreakpoint(int line) {
-		ToggleBreakpointCommand command = new ToggleBreakpointCommand();
-		command.line = line;
-		try {
-			gemocServerInput.writeObject(command);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void removeMEPEventListener(IMEPEventListener listener) {
+		this.mepEventListeners.remove(listener);
 	}
 	
 	@Override
-	protected void internalContinue() {
-		ContinueCommand command = new ContinueCommand();
-		try {
-			gemocServerInput.writeObject(command);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public void removeAllMEPEventListeners() {
+		this.mepEventListeners.clear();
 	}
-	
 }
