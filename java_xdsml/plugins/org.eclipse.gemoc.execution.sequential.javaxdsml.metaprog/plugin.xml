@@ -4,8 +4,15 @@
    <extension
          point="org.eclipse.gemoc.gemoc_language_workbench.metaprog">
       <approach
+            dependencies="org.eclipse.gemoc.metaprog.ecore"
             name="org.eclipse.gemoc.metaprog.kermeta3"
             validator="org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider.Kermeta3RuleProvider">
+         <languageComponent
+               description="Entry used to define domain specific actions for the dsl, on of the aspects listed must have a @init tag while another one must have the @main tag."
+               name="k3"
+               optional="false"
+               validationRule="org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider.Kermeta3Rule">
+         </languageComponent>
       </approach>
    </extension>
 
