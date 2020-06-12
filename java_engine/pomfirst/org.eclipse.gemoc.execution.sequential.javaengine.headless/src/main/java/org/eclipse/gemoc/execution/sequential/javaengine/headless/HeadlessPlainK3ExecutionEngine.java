@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.spi.IRegistryProvider;
 import org.eclipse.core.runtime.spi.RegistryStrategy;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -90,7 +89,7 @@ import fr.inria.diverse.k3.al.annotationprocessor.stepmanager.StepManagerRegistr
  * @author Didier Vojtisek<didier.vojtisek@inria.fr>
  *
  */
-public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtension> extends AbstractCommandBasedSequentialExecutionEngine<AbstractHeadlessExecutionContext<ISequentialRunConfiguration,  L >, ISequentialRunConfiguration> implements IStepManager {
+public class HeadlessPlainK3ExecutionEngine<L extends LanguageDefinitionExtension> extends AbstractCommandBasedSequentialExecutionEngine<AbstractHeadlessExecutionContext<ISequentialRunConfiguration,  L >, ISequentialRunConfiguration> implements IStepManager {
 //public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtension> extends AbstractSequentialExecutionEngine<AbstractHeadlessExecutionContext<ISequentialRunConfiguration,  L >, ISequentialRunConfiguration>		implements IStepManager {
 
 
@@ -108,7 +107,7 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 	private Map<Integer, Boolean> breakpoints;
 	
 	private ByteArrayOutputStream outputStream;
-
+	
 	@Override
 	public String engineKindName() {
 		return "GEMOC Kermeta HEADLESS Sequential Engine";
@@ -663,11 +662,6 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 		}
 		return resource;
 	}
-
-	// 
-	// Simulation Server
-
-	
 	
 	// semaphore for locking doStep
 	Semaphore startDoStepSemaphore;
@@ -755,19 +749,15 @@ public class HeadlessPlainK3ExecutionEngine< L extends LanguageDefinitionExtensi
 				increment(startDoStepSemaphore);
 				decrement(finishDoStepSemaphore);
 			}
-			/*
-			if(clientCommand instanceof SetVariableCommand) {
-				String varQN = ((SetVariableCommand) clientCommand).variableQualifiedName;
-				Object newValue = ((SetVariableCommand) clientCommand).newValue; 
-				Boolean res = this.setVariable(varQN, newValue);
-				cout.writeObject(res);
-			}*/
 			System.out.println("wait for a new command.");
 		} while(!simulationEnded);
+		
 		solverThread.join();
+
 		if (stopReceived) {
 			cout.writeObject(Boolean.TRUE);
 		}
+		clientSocket.close();
 		serverSocket.close();
 		
 		if (exceptionQueue.isEmpty()) {
