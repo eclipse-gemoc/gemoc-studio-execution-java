@@ -48,12 +48,6 @@
 			<artifactId>org.eclipse.emf.mwe.utils</artifactId>
 			<version>1.5.1</version>
 		</dependency>
-		<!-- warning verify version retrieved via org.eclipse.xtext.ide -->
-		<dependency>
-			<groupId>org.eclipse.gemoc.executionframework</groupId>
-			<artifactId>org.eclipse.gemoc.executionframework.mep</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
 		<!-- GEMOC Java Engine dependencies -->
 		<dependency>
@@ -123,6 +117,11 @@
 		<dependency>
 			<groupId>org.eclipse.gemoc.pomfirst</groupId>
 			<artifactId>org.eclipse.gemoc.xdsmlframework.commons</artifactId>
+			<version>4.0.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.eclipse.gemoc.pomfirst</groupId>
+			<artifactId>org.eclipse.gemoc.executionframework.engine</artifactId>
 			<version>4.0.0-SNAPSHOT</version>
 		</dependency>
 <!-- 		<dependency>
