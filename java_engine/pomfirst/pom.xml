@@ -30,6 +30,7 @@
 	
 	<modules>
 		<module>org.eclipse.gemoc.execution.sequential.javaengine.headless</module>
+		<module>org.eclipse.gemoc.execution.sequential.javaengine.headless.mep</module>
 	</modules>
 
 	<build>
