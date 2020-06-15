@@ -8,19 +8,10 @@
             name="org.eclipse.gemoc.metaprog.kermeta3"
             validator="org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider.Kermeta3RuleProvider">
          <languageComponent
-               description="Entry for the Kermeta3 metaprogramming approach.\n Used to list the various aspects required for the language."
+               description="Entry used to define domain specific actions for the dsl, one of the aspects listed must have a @init tag while another one must have the @main tag."
                name="k3"
-               optional="false">
-         </languageComponent>
-         <languageComponent
-               description="Entry used to define the sirius file in which the graphical elements for modelling the DSL are locatted."
-               name="sirius"
-               optional="true">
-         </languageComponent>
-         <languageComponent
-               description="Entry for the definition of the concrete syntax of the DSL."
-               name="xtext"
-               optional="true">
+               optional="false"
+               validationRule="org.eclipse.gemoc.execution.sequential.javaxdsml.ruleprovider.Kermeta3Rule">
          </languageComponent>
       </approach>
    </extension>
