@@ -11,17 +11,14 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.AbstractHeadlessExecutionContext;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.HeadlessExecutionPlatform;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.HeadlessExecutionWorkspace;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.HeadlessPlainK3ExecutionEngine;
-import org.eclipse.gemoc.execution.sequential.javaengine.headless.StackFrame;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ClearBreakpointsCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ContinueCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.DoStepCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.GetVariableCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ListVariablesCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.OutputEvent;
+import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StackFrame;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StepKind;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopCondition;
@@ -29,8 +26,11 @@ import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopE
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopReason;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ToggleBreakpointCommand;
 import org.eclipse.gemoc.executionframework.engine.commons.EngineContextException;
-import org.eclipse.gemoc.executionframework.engine.commons.sequential.HeadlessJavaEngineSequentialRunConfiguration;
 import org.eclipse.gemoc.executionframework.engine.commons.sequential.ISequentialRunConfiguration;
+import org.eclipse.gemoc.executionframework.engine.headless.AbstractHeadlessExecutionContext;
+import org.eclipse.gemoc.executionframework.engine.headless.HeadlessExecutionPlatform;
+import org.eclipse.gemoc.executionframework.engine.headless.HeadlessExecutionWorkspace;
+import org.eclipse.gemoc.executionframework.engine.headless.HeadlessJavaEngineSequentialRunConfiguration;
 import org.eclipse.gemoc.executionframework.mep.engine.IMEPEngine;
 import org.eclipse.gemoc.executionframework.mep.engine.IMEPEventListener;
 import org.eclipse.gemoc.executionframework.mep.events.StoppedReason;
@@ -167,31 +167,33 @@ public class HeadlessPlainK3ExecutionEngineMEP<L extends LanguageDefinitionExten
 	}
 	
 	@Override
-	public StoppedReason internalNext() {
-		return internalDoStep(StepKind.NEXT);
+	public void internalNext() {
+		internalDoStep(StepKind.NEXT);
 	}
 
 	@Override
-	public StoppedReason internalStepIn() {
-		return internalDoStep(StepKind.STEP_IN);
+	public void internalStepIn() {
+		internalDoStep(StepKind.STEP_IN);
 	}
 
 	@Override
-	public StoppedReason internalStepOut() {
-		return internalDoStep(StepKind.STEP_OUT);
+	public void internalStepOut() {
+		internalDoStep(StepKind.STEP_OUT);
 	}
 	
-	private StoppedReason internalDoStep(StepKind stepKind) {
+	private void internalDoStep(StepKind stepKind) {
 		DoStepCommand command = new DoStepCommand();
 		command.stepKind = stepKind;
 		try {
 			gemocServerInput.writeObject(command);
 			serverOutputBufferSem.acquire();
 			Object output = serverOutputBuffer.remove(0);
-			return engineToMepStopReason((((StopCondition) output).stopReason));
+			for (IMEPEventListener eventListener : mepEventListeners) {
+				eventListener.stopReceived(new org.eclipse.gemoc.executionframework.mep.events.Stopped(this,
+						engineToMepStopReason(((StopCondition) output).stopReason)));
+			}
 		} catch (IOException | InterruptedException  e) {
 			e.printStackTrace();
-			return null;
 		}
 	}
 	

@@ -1,4 +1,4 @@
-package org.eclipse.gemoc.execution.sequential.javaengine.headless;
+package org.eclipse.gemoc.execution.sequential.javaengine.headless.commands;
 
 public class StackFrame {
 	

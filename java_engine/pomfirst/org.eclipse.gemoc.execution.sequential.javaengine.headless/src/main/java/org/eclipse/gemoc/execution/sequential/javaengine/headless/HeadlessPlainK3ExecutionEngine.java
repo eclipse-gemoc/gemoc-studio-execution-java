@@ -45,6 +45,7 @@ import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.DoSte
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.GetVariableCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.ListVariablesCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.OutputEvent;
+import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StackFrame;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StepKind;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopCommand;
 import org.eclipse.gemoc.execution.sequential.javaengine.headless.commands.StopCondition;
@@ -59,6 +60,8 @@ import org.eclipse.gemoc.executionframework.engine.commons.K3DslHelper;
 import org.eclipse.gemoc.executionframework.engine.commons.sequential.ISequentialRunConfiguration;
 import org.eclipse.gemoc.executionframework.engine.core.AbstractCommandBasedSequentialExecutionEngine;
 import org.eclipse.gemoc.executionframework.engine.core.EngineStoppedException;
+import org.eclipse.gemoc.executionframework.engine.headless.AbstractHeadlessExecutionContext;
+import org.eclipse.gemoc.executionframework.engine.headless.FakeOSGI;
 import org.eclipse.gemoc.xdsmlframework.api.extensions.languages.LanguageDefinitionExtension;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -159,7 +162,7 @@ public class HeadlessPlainK3ExecutionEngine<L extends LanguageDefinitionExtensio
 
 		
 		// try to fake osgi start
-		fakeOSGIStart();
+		FakeOSGI.start();
 		
 		
 	/*	Bundle bundle = findBundle(executionContext, aspectClassName);
@@ -275,89 +278,6 @@ public class HeadlessPlainK3ExecutionEngine<L extends LanguageDefinitionExtensio
 				initializeMethodParameters
 						.add(executionContext.getRunConfiguration().getModelInitializationArguments().split("\\r?\\n"));
 			}
-		}
-	}
-
-	
-	public void fakeOSGIStart() {
-		
-		
-		
-		// If there isn't already a registry...
-        //
-        IExtensionRegistry registry = RegistryFactory.getRegistry();
-        if (registry == null)
-        {
-          // Create a new registry.
-          //
-          final IExtensionRegistry newRegistry =
-            RegistryFactory.createRegistry
-              (new RegistryStrategy(null, null)
-               {
-                 @Override
-                 public void log(IStatus status)
-                 {
-                	 switch (status.getSeverity()) {
-					case Status.ERROR:
-						 LOGGER.error(status.toString());
-						break;
-					case Status.WARNING:
-						 LOGGER.warn(status.toString());
-						break;
-
-					default:
-						 LOGGER.info(status.toString());
-						break;
-						
-					}
-                 }
-
-                 @Override
-                 public String translate(String key, ResourceBundle resources)
-                 {
-                   try
-                   {
-                     // The org.eclipse.core.resources bundle has keys that aren't translated, so avoid exception propagation.
-                     //
-                     return super.translate(key, resources);
-                   }
-                   catch (Throwable throwable)
-                   {
-                     return key;
-                   }
-                 }
-               },
-               null,
-               null);
-
-          // Make the new registry the default.
-          //
-          try
-          {
-            RegistryFactory.setDefaultRegistryProvider
-              (new IRegistryProvider()
-               {
-                 public IExtensionRegistry getRegistry()
-                 {
-                  return newRegistry;
-                 }
-               });
-          }
-          catch (CoreException e)
-          {
-        	  LOGGER.error(e.getMessage(), e);
-          }
-
-          registry = newRegistry;
-        }
-        
-        
-        org.eclipse.gemoc.executionframework.engine.Activator activator = new org.eclipse.gemoc.executionframework.engine.Activator();
-		try {
-			activator.start(new FakeBundleContext());
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 	}
 	

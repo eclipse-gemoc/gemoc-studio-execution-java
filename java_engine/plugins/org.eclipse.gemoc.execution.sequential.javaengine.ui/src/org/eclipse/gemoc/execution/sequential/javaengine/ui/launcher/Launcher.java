@@ -18,15 +18,18 @@ import org.eclipse.gemoc.commons.eclipse.messagingsystem.api.MessagingSystem;
 import org.eclipse.gemoc.commons.eclipse.ui.ViewHelper;
 import org.eclipse.gemoc.execution.sequential.javaengine.PlainK3ExecutionEngine;
 import org.eclipse.gemoc.execution.sequential.javaengine.ui.Activator;
+import org.eclipse.gemoc.executionframework.engine.commons.DefaultExecutionPlatform;
 import org.eclipse.gemoc.executionframework.engine.commons.EngineContextException;
 import org.eclipse.gemoc.executionframework.engine.commons.GenericModelExecutionContext;
+import org.eclipse.gemoc.executionframework.engine.commons.sequential.ISequentialModelExecutionContext;
 import org.eclipse.gemoc.executionframework.engine.commons.sequential.ISequentialRunConfiguration;
+import org.eclipse.gemoc.executionframework.engine.commons.sequential.SequentialModelExecutionContext;
 import org.eclipse.gemoc.executionframework.engine.commons.sequential.SequentialRunConfiguration;
 import org.eclipse.gemoc.executionframework.engine.ui.launcher.AbstractSequentialGemocLauncher;
 import org.eclipse.gemoc.executionframework.ui.views.engine.EnginesStatusView;
 import org.eclipse.gemoc.xdsmlframework.api.core.ExecutionMode;
 
-public class Launcher extends AbstractSequentialGemocLauncher<GenericModelExecutionContext<ISequentialRunConfiguration>, ISequentialRunConfiguration> {
+public class Launcher extends AbstractSequentialGemocLauncher {
 
 	public final static String TYPE_ID = Activator.PLUGIN_ID + ".launcher";
 
@@ -35,8 +38,7 @@ public class Launcher extends AbstractSequentialGemocLauncher<GenericModelExecut
 			ExecutionMode executionMode) throws CoreException, EngineContextException {
 		// create and initialize engine
 		PlainK3ExecutionEngine executionEngine = new PlainK3ExecutionEngine();
-		GenericModelExecutionContext<ISequentialRunConfiguration> executioncontext = new GenericModelExecutionContext<ISequentialRunConfiguration>(
-				runConfiguration, executionMode);
+		SequentialModelExecutionContext executioncontext = new SequentialModelExecutionContext(runConfiguration, executionMode);
 		executioncontext.getExecutionPlatform().getModelLoader().setProgressMonitor(this.launchProgressMonitor);
 		executioncontext.initializeResourceModel();
 		executionEngine.initialize(executioncontext);

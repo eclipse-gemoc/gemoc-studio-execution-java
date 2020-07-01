@@ -26,8 +26,8 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.transaction.TransactionalEditingDomain;
 import org.eclipse.emf.transaction.impl.InternalTransactionalEditingDomain;
-import org.eclipse.gemoc.executionframework.engine.commons.GenericModelExecutionContext;
 import org.eclipse.gemoc.executionframework.engine.commons.K3DslHelper;
+import org.eclipse.gemoc.executionframework.engine.commons.sequential.ISequentialModelExecutionContext;
 import org.eclipse.gemoc.executionframework.engine.commons.sequential.ISequentialRunConfiguration;
 import org.eclipse.gemoc.executionframework.engine.core.AbstractCommandBasedSequentialExecutionEngine;
 import org.eclipse.gemoc.executionframework.engine.core.EngineStoppedException;
@@ -54,7 +54,7 @@ import fr.inria.diverse.melange.adapters.EObjectAdapter;
  * @author Didier Vojtisek<didier.vojtisek@inria.fr>
  *
  */
-public class PlainK3ExecutionEngine extends AbstractCommandBasedSequentialExecutionEngine<GenericModelExecutionContext<ISequentialRunConfiguration>, ISequentialRunConfiguration>
+public class PlainK3ExecutionEngine extends AbstractCommandBasedSequentialExecutionEngine<ISequentialModelExecutionContext<?>, ISequentialRunConfiguration>
 		implements IStepManager {
 
 	private Method initializeMethod;
@@ -76,7 +76,7 @@ public class PlainK3ExecutionEngine extends AbstractCommandBasedSequentialExecut
 	 * operation.
 	 */
 	@Override
-	protected void prepareEntryPoint(GenericModelExecutionContext<ISequentialRunConfiguration> executionContext) {
+	protected void prepareEntryPoint(ISequentialModelExecutionContext<?> executionContext) {
 		/*
 		 * Get info from the RunConfiguration
 		 */
@@ -94,30 +94,12 @@ public class PlainK3ExecutionEngine extends AbstractCommandBasedSequentialExecut
 		String aspectClassName = methodFullName.substring(0, methodFullName.lastIndexOf("."));
 		String methodName = methodFullName.substring(methodFullName.lastIndexOf(".") + 1);
 
-		Bundle bundle = findBundle(executionContext, aspectClassName);
-		if (bundle == null)
-			throw new RuntimeException("Could not find bundle for language \""
-					+ executionContext.getRunConfiguration().getLanguageName() + "\"");
-
-		// search the class
-		try {
-			entryPointClass = bundle.loadClass(aspectClassName);
-		} catch (ClassNotFoundException e) {
-			String bundleName = bundle.getHeaders().get("Bundle-Name");
-			e.printStackTrace();
-			throw new RuntimeException(
-					"Could not find class " + executionContext.getRunConfiguration().getExecutionEntryPoint()
-							+ " in bundle " + bundleName + ".");
-		}
+		entryPointClass = findEntryPointClass(aspectClassName);
 
 		// search the method
-		this.entryPointMethodParameters = new ArrayList<>();
-		EObject root = executionContext.getResourceModel().getEObject(mainModelElementURI);
-		if (root instanceof EObjectAdapter) {
-			entryPointMethodParameters.add(((EObjectAdapter<?>) root).getAdaptee());
-		} else {
-			entryPointMethodParameters.add(root);
-		}
+		EObject root = getExecutionContext().getResourceModel().getEObject(mainModelElementURI);
+		this.entryPointMethodParameters = findEntryPointMethodeParameters(root);
+
 		try {
 			this.entryPointMethod = K3DslHelper.findMethod(entryPointClass, root, methodName);
 		} catch (Exception e) {
@@ -128,9 +110,39 @@ public class PlainK3ExecutionEngine extends AbstractCommandBasedSequentialExecut
 			throw new RuntimeException("Could not find method main with correct parameters.");
 		}
 	}
+	
+	protected Class<?> findEntryPointClass(String aspectClassName) {
+		ISequentialModelExecutionContext<?> executionContext = getExecutionContext();
+		Bundle bundle = findBundle(executionContext, aspectClassName);
+		if (bundle == null)
+			throw new RuntimeException("Could not find bundle for language \""
+					+ executionContext.getRunConfiguration().getLanguageName() + "\"");
+
+		Class<?> entryPointClass;
+		try {
+			entryPointClass = bundle.loadClass(aspectClassName);
+		} catch (ClassNotFoundException e) {
+			String bundleName = bundle.getHeaders().get("Bundle-Name");
+			e.printStackTrace();
+			throw new RuntimeException(
+					"Could not find class " + executionContext.getRunConfiguration().getExecutionEntryPoint()
+							+ " in bundle " + bundleName + ".");
+		}
+		return entryPointClass;
+	}
+	
+	protected List<Object> findEntryPointMethodeParameters(EObject root) {
+		List<Object> entryPointMethodParameters = new ArrayList<>();
+		if (root instanceof EObjectAdapter) {
+			entryPointMethodParameters.add(((EObjectAdapter<?>) root).getAdaptee());
+		} else {
+			entryPointMethodParameters.add(root);
+		}
+		return entryPointMethodParameters;
+	}
 
 	@Override
-	protected void prepareInitializeModel(GenericModelExecutionContext<ISequentialRunConfiguration> executionContext) {
+	protected void prepareInitializeModel(ISequentialModelExecutionContext<?> executionContext) {
 
 		// try to get the initializeModelRunnable
 		String modelInitializationMethodQName = executionContext.getRunConfiguration().getModelInitializationMethod();
@@ -320,7 +332,7 @@ public class PlainK3ExecutionEngine extends AbstractCommandBasedSequentialExecut
 	 * 
 	 * Return null if not found.
 	 */
-	private Bundle findBundle(final GenericModelExecutionContext<ISequentialRunConfiguration> executionContext, String aspectClassName) {
+	private Bundle findBundle(final ISequentialModelExecutionContext<?> executionContext, String aspectClassName) {
 
 		// Look using JavaWorkspaceScope as this is safer and will look in
 		// dependencies

@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.gemoc.execution.sequential.javaengine</groupId>
-	<artifactId>org.eclipse.gemoc.execution.sequential.javaengine.headless.mep</artifactId>
+	<artifactId>org.eclipse.gemoc.execution.sequential.javaengine.mep</artifactId>
 
 	<parent>
 		<groupId>org.eclipse.gemoc.execution.sequential.javaengine</groupId>
@@ -19,11 +19,21 @@
 	</properties>
   
   <dependencies>
+	<dependency>
+		<groupId>org.eclipse.gemoc.pomfirst</groupId>
+		<artifactId>org.eclipse.gemoc.commons.utils</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</dependency>
   	<dependency>
   	  <groupId>org.eclipse.gemoc.executionframework</groupId>
   	  <artifactId>org.eclipse.gemoc.executionframework.mep</artifactId>
   	  <version>1.0.0-SNAPSHOT</version>
   	</dependency>
+	<dependency>
+		<groupId>DSLDebugger</groupId>
+		<artifactId>org.eclipse.gemoc.dsl.debug.ide</artifactId>
+		<version>3.0.1-SNAPSHOT</version>
+	</dependency>
     <dependency>
       <groupId>org.eclipse.gemoc.modeldebugging.framework.commons</groupId>
       <artifactId>org.eclipse.gemoc.xdsmlframework.api</artifactId>
@@ -35,13 +45,13 @@
 		<version>4.0.0-SNAPSHOT</version>
 	</dependency>
 	<dependency>
-   		<groupId>org.eclipse.gemoc.execution.sequential.javaengine</groupId>
-		<artifactId>org.eclipse.gemoc.execution.sequential.javaengine.headless</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<groupId>org.eclipse.gemoc.pomfirst</groupId>
+		<artifactId>org.eclipse.gemoc.executionframework.debugger</artifactId>
+		<version>4.0.0-SNAPSHOT</version>
 	</dependency>
 	<dependency>
-	    <groupId>org.eclipse.gemoc.pomfirst</groupId>
-		<artifactId>org.eclipse.gemoc.xdsmlframework.commons</artifactId>
+		<groupId>org.eclipse.gemoc.pomfirst</groupId>
+		<artifactId>org.eclipse.gemoc.execution.sequential.javaengine</artifactId>
 		<version>4.0.0-SNAPSHOT</version>
 	</dependency>
  	<dependency>
@@ -56,16 +66,15 @@
 		<artifactId>fr.inria.diverse.k3.al.annotationprocessor</artifactId>
 		<version>3.2.3-SNAPSHOT</version>
 	</dependency>
-	<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
 	<dependency>
 	  <groupId>org.eclipse.gemoc.executionframework</groupId>
       <artifactId>org.eclipse.gemoc.executionframework.engine.headless</artifactId>
       <version>1.0.0-SNAPSHOT</version>
 	</dependency>
 	<dependency>
-	    <groupId>org.slf4j</groupId>
-	    <artifactId>slf4j-api</artifactId>
-	    <version>1.7.30</version>
+		<groupId>org.eclipse.gemoc.multidimensional_trace_management</groupId>
+		<artifactId>org.eclipse.gemoc.trace.gemoc</artifactId>
+		<version>3.0.1-SNAPSHOT</version>
 	</dependency>
   </dependencies>
 	<repositories>
