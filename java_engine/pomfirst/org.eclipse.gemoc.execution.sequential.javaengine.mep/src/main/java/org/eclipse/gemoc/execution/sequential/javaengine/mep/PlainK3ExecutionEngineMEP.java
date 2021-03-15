@@ -10,12 +10,7 @@ import java.util.function.BiPredicate;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.gemoc.commons.utils.ModelAwarePrintStream;
-import org.eclipse.gemoc.dsl.debug.ide.event.model.AbstractStepRequest;
-import org.eclipse.gemoc.dsl.debug.ide.event.model.ResumeRequest;
-import org.eclipse.gemoc.dsl.debug.ide.event.model.StepIntoRequest;
-import org.eclipse.gemoc.dsl.debug.ide.event.model.StepOverRequest;
-import org.eclipse.gemoc.dsl.debug.ide.event.model.StepReturnRequest;
-import org.eclipse.gemoc.dsl.debug.ide.event.model.TerminateRequest;
+import org.eclipse.gemoc.dsl.debug.ide.event.model.StartRequest;
 import org.eclipse.gemoc.execution.sequential.javaengine.PlainK3ExecutionEngine;
 import org.eclipse.gemoc.executionframework.engine.headless.AbstractSequentialHeadlessExecutionContext;
 import org.eclipse.gemoc.executionframework.engine.headless.HeadlessExecutionPlatform;
@@ -49,7 +44,7 @@ public class PlainK3ExecutionEngineMEP<L extends LanguageDefinitionExtension> ex
 
 	ISequentialRunConfiguration runConfiguration = null;
 	L languageDefinition;
-	HeadlessGenericSequentialModelDebugger modelDebugger = null;
+	IHeadlessGemocDebugger modelDebugger = null;
 	HeadlessDebugEventHandler debugEventHandler = null;
 	AbstractSequentialHeadlessExecutionContext executionContext = null;
 	IDynamicPartAccessor partAccessor = null;
@@ -59,6 +54,11 @@ public class PlainK3ExecutionEngineMEP<L extends LanguageDefinitionExtension> ex
 		
 	public PlainK3ExecutionEngineMEP(L languageDefinition) {
 		this.languageDefinition = languageDefinition;
+	}
+	
+	@Override
+	public IHeadlessGemocDebugger getDebugger() {
+		return this.modelDebugger;
 	}
 	
 	@Override
@@ -82,6 +82,10 @@ public class PlainK3ExecutionEngineMEP<L extends LanguageDefinitionExtension> ex
 		return entryPointMethodParameters;
 	}
 	
+	private GenericTraceEngineAddon traceAddon;
+	public void setTraceAddon(GenericTraceEngineAddon traceAddon) {
+		this.traceAddon = traceAddon;
+	}
 	@Override
 	public void internalLaunchEngine(MEPLauncherParameters launchParameters) {
 		Resource resourceModel = launchParameters.resourceModel;
@@ -102,9 +106,15 @@ public class PlainK3ExecutionEngineMEP<L extends LanguageDefinitionExtension> ex
 			org.eclipse.emf.transaction.TransactionalEditingDomain.Factory.INSTANCE.createEditingDomain(resourceModel.getResourceSet());
 			
 			this.initialize(executionContext);			
-			
+
 			debugEventHandler = new HeadlessDebugEventHandler();
-			modelDebugger = new HeadlessGenericSequentialModelDebugger(debugEventHandler, this);
+			if (traceAddon != null) {
+				executionContext.getExecutionPlatform().addEngineAddon(traceAddon);
+				modelDebugger = new HeadlessOmniscientGenericSequentialModelDebugger(debugEventHandler, this);
+			} else {
+				modelDebugger = new HeadlessGenericSequentialModelDebugger(debugEventHandler, this);
+			}
+			
 			executionContext.getExecutionPlatform().addEngineAddon(modelDebugger);
 			partAccessor = new DefaultDynamicPartAccessor();
 			
@@ -116,11 +126,7 @@ public class PlainK3ExecutionEngineMEP<L extends LanguageDefinitionExtension> ex
 				}
 			});
 			
-			// Try to do something with trace addon
-			GenericTraceEngineAddon traceAddon = new GenericTraceEngineAddon();
-			executionContext.getExecutionPlatform().addEngineAddon(traceAddon);
-			
-			this.start();
+			modelDebugger.handleEvent(new StartRequest());
 		} catch (EngineContextException e) {
 			e.printStackTrace();
 		}
@@ -165,34 +171,28 @@ public class PlainK3ExecutionEngineMEP<L extends LanguageDefinitionExtension> ex
 
 	@Override
 	public void internalNext() {
-		internalDoStep(new StepOverRequest(modelDebugger.getThreadName(),
-				modelDebugger.getCurrentInstruction()));
+		modelDebugger.stepOver(modelDebugger.getThreadName());
+		manageAfterStep();
 	}
 
 	@Override
 	public void internalStepIn() {
-		internalDoStep(new StepIntoRequest(modelDebugger.getThreadName(),
-				modelDebugger.getCurrentInstruction()));
+		modelDebugger.stepInto(modelDebugger.getThreadName());
+		manageAfterStep();
 	}
 
 	@Override
 	public void internalStepOut() {
-		internalDoStep(new StepReturnRequest(modelDebugger.getThreadName(),
-				modelDebugger.getCurrentInstruction()));
+		modelDebugger.stepReturn(modelDebugger.getThreadName());
+		manageAfterStep();
 	}
 	
-	private void internalDoStep(AbstractStepRequest step) {
-		modelDebugger.handleEvent(step);
-		try {
-			debugEventHandler.waitBreakReached();
-			if (debugEventHandler.isSimulationEnded()) {
-				System.setOut(baseStream);
-				notifyListeners(new Stopped(this, StoppedReason.REACHED_SIMULATION_END));
-			} else {
-				notifyListeners(new Stopped(this, StoppedReason.REACHED_NEXT_LOGICAL_STEP));
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+	private void manageAfterStep() {
+		if (modelDebugger.isTerminated()) {
+			System.setOut(baseStream);
+			notifyListeners(new Stopped(this, StoppedReason.REACHED_SIMULATION_END));
+		} else {
+			notifyListeners(new Stopped(this, StoppedReason.REACHED_NEXT_LOGICAL_STEP));
 		}
 	}
 
@@ -212,12 +212,30 @@ public class PlainK3ExecutionEngineMEP<L extends LanguageDefinitionExtension> ex
 	@Override
 	public void internalTerminate() {
 		System.setOut(baseStream);
-		modelDebugger.handleEvent(new TerminateRequest(modelDebugger.getThreadName()));
+		modelDebugger.terminate();
 	}
 
 	@Override
 	public void internalContinue() {
-		modelDebugger.handleEvent(new ResumeRequest(modelDebugger.getThreadName()));
+		final PlainK3ExecutionEngine engine = this;
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					debugEventHandler.waitBreakReached();
+					if (modelDebugger.isTerminated()) {
+						System.setOut(baseStream);
+						notifyListeners(new Stopped(engine, StoppedReason.REACHED_SIMULATION_END));
+					} else {
+						notifyListeners(new Stopped(engine, StoppedReason.REACHED_NEXT_LOGICAL_STEP));
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
+		debugEventHandler.clearPermits();
+		modelDebugger.resume();
 	}
 
 	@Override

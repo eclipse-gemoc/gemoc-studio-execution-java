@@ -5,35 +5,33 @@ import java.util.concurrent.Semaphore;
 import org.eclipse.gemoc.dsl.debug.ide.event.IDSLDebugEvent;
 import org.eclipse.gemoc.dsl.debug.ide.event.IDSLDebugEventProcessor;
 import org.eclipse.gemoc.dsl.debug.ide.event.debugger.BreakpointReply;
+import org.eclipse.gemoc.dsl.debug.ide.event.debugger.SetCurrentInstructionReply;
 import org.eclipse.gemoc.dsl.debug.ide.event.debugger.SpawnRunningThreadReply;
 import org.eclipse.gemoc.dsl.debug.ide.event.debugger.TerminatedReply;
 
 public class HeadlessDebugEventHandler implements IDSLDebugEventProcessor {
 
 	private volatile Semaphore breakReached;
-	private volatile boolean simulationEnded;
+	
+	public HeadlessDebugEventHandler() {
+		this.breakReached = new Semaphore(0);
+	}
 	
 	@Override
 	public Object handleEvent(IDSLDebugEvent event) {
-		if (event instanceof SpawnRunningThreadReply) {
-			simulationEnded = false;
-			breakReached = new Semaphore(-1);
-		} else if (event instanceof BreakpointReply) {
-			breakReached.release();
-		} else if (event instanceof TerminatedReply) {
-			simulationEnded = true;
+		if (event instanceof BreakpointReply || event instanceof TerminatedReply) {
 			breakReached.release();
 		}
-		//System.out.println("  Debug event: " + event.toString());
+		System.err.println("  Debug event: " + event.toString());
 		return null;
-	}
-	
-	public boolean isSimulationEnded() {
-		return this.simulationEnded;
 	}
 	
 	public void waitBreakReached() throws InterruptedException {
 		this.breakReached.acquire();
+	}
+	
+	public void clearPermits() {
+		this.breakReached.drainPermits();
 	}
 	
 }
