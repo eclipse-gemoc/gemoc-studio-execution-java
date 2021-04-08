@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         id="org.eclipse.gemoc.execution.sequential.javaengine.k3_rule_executor"
+         name="K3 Rule Executor"
+         point="org.eclipse.gemoc.executionframework.event.metalanguage_rule_executor">
+      <metalanguage_rule_executor
+            class="org.eclipse.gemoc.execution.sequential.javaengine.K3RuleExecutor">
+      </metalanguage_rule_executor>
+   </extension>
+</plugin>
