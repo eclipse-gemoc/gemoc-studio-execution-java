@@ -35,6 +35,7 @@
         <module>java_engine/plugins/org.eclipse.gemoc.execution.sequential.javaengine.ui</module>
                
         <!-- features -->
+        <module>releng/org.eclipse.gemoc.execution.java.feature</module>
         <module>releng/org.eclipse.gemoc.execution.sequential.javaxdsml.feature</module>
         <module>releng/org.eclipse.gemoc.execution.sequential.javaengine.feature</module>
         <module>releng/org.eclipse.gemoc.execution.sequential.javaengine.ui.feature</module>
