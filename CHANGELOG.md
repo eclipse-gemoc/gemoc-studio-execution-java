@@ -1,5 +1,25 @@
 # Changelog
 
+## v3.3.0 (28/07/2021)
+
+#### Enhancements:
+
+- [**enhancement**] Add Sirius ELK support [#15](https://github.com/eclipse/gemoc-studio-execution-java/pull/15)
+- [**enhancement**] [Event Manager PR#3] Metalanguage rule executor for java execution engine [#17](https://github.com/eclipse/gemoc-studio-execution-java/pull/17)
+
+#### Version upgrades
+
+- [**bump**] Bump eclipse 2020-12 [#14](https://github.com/eclipse/gemoc-studio-execution-java/pull/14)
+- [**bump**] Bump to Eclipse 2021-06 [#19](https://github.com/eclipse/gemoc-studio-execution-java/pull/19)
+- [**bump**] Bump to Eclipse 2020-03 [#13](https://github.com/eclipse/gemoc-studio-execution-java/pull/13)
+
+#### Release Engineering
+
+- [**releng**] Consolidation and automatic bump of K3 versions [#16](https://github.com/eclipse/gemoc-studio-execution-java/pull/16)
+- [**releng**] Explicit repository features [#18](https://github.com/eclipse/gemoc-studio-execution-java/pull/18)
+
+---
+
 ## v3.2.0 (16/06/2020)
 
 #### Enhancements:
