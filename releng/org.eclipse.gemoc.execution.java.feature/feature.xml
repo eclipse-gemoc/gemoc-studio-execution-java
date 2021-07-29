@@ -12,7 +12,7 @@
 <feature
       id="org.eclipse.gemoc.execution.java.feature"
       label="GEMOC ExecutionJava"
-      version="3.3.0.qualifier"
+      version="3.4.0.qualifier"
       provider-name="%providerName"
       image="gemocstudio32.png">
 
@@ -132,7 +132,5 @@ This Agreement is governed by the laws of the State of New York and the intellec
    <includes
          id="org.eclipse.gemoc.execution.sequential.javaxdsml.feature"
          version="0.0.0"/>
-
-
 
 </feature>
