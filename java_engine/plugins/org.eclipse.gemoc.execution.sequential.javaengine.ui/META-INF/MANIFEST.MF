@@ -1,10 +1,10 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Gemoc Sequential Language Workbench UI
+Bundle-Name: GEMOC Sequential Language Workbench UI
 Bundle-SymbolicName: org.eclipse.gemoc.execution.sequential.javaengine.ui;singleton:=true
 Bundle-Version: 4.0.0.qualifier
 Bundle-Activator: org.eclipse.gemoc.execution.sequential.javaengine.ui.Activator
-Bundle-Vendor: INRIA
+Bundle-Vendor: Eclipse GEMOC Project
 Require-Bundle: org.eclipse.core.expressions;bundle-version="3.4.400",
  org.eclipse.debug.ui;bundle-version="3.8.2",
  org.eclipse.gemoc.xdsmlframework.api,
