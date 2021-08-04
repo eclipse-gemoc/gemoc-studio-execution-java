@@ -20,4 +20,5 @@ Export-Package: org.eclipse.gemoc.execution.sequential.javaengine.tests,
  org.eclipse.gemoc.execution.sequential.javaengine.tests.languages,
  org.eclipse.gemoc.execution.sequential.javaengine.tests.wrapper
 Automatic-Module-Name: org.eclipse.gemoc.execution.sequential.javaengine.tests
+Bundle-Vendor: Eclipse GEMOC Project
 
