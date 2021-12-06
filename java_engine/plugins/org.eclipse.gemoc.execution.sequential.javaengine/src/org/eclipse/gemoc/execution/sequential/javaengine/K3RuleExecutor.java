@@ -7,13 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.gemoc.dsl.Dsl;
+import org.eclipse.gemoc.executionframework.engine.commons.DslHelper;
 import org.eclipse.gemoc.executionframework.event.manager.IMetalanguageRuleExecutor;
 import org.eclipse.gemoc.executionframework.event.manager.SimpleCallRequest;
 import org.eclipse.gemoc.xdsmlframework.api.core.IExecutionEngine;
@@ -73,28 +68,14 @@ public class K3RuleExecutor implements IMetalanguageRuleExecutor {
 	}
 
 	private void loadLanguage(String languageName) {
-		final ResourceSet resSet = new ResourceSetImpl();
-		IConfigurationElement language = Arrays
-				.asList(Platform.getExtensionRegistry()
-						.getConfigurationElementsFor("org.eclipse.gemoc.gemoc_language_workbench.sequential.xdsml"))
-				.stream().filter(l -> l.getAttribute("xdsmlFilePath").endsWith(".dsl")
-						&& l.getAttribute("name").equals(languageName))
-				.findFirst().orElse(null);
-
-		if (language != null) {
-			final Resource res = resSet.getResource(URI.createURI(language.getAttribute("xdsmlFilePath")), true);
-			final Dsl dsl = (Dsl) res.getContents().get(0);
-			final Bundle bundle = Platform.getBundle(language.getContributor().getName());
-
-			if (dsl != null) {
-				final List<Class<?>> classes = dsl.getEntries().stream().filter(e -> e.getKey().equals("k3"))
-						.findFirst()
-						.map(os -> Arrays.asList(os.getValue().split(",")).stream().map(cn -> loadClass(cn, bundle))
-								.filter(c -> c != null).collect(Collectors.toList()))
-						.orElse(Collections.emptyList()).stream().map(c -> (Class<?>) c).collect(Collectors.toList());
-				this.operationalSemantics.addAll(classes);
-			}
-		}
+		final Dsl dsl = DslHelper.load(languageName);
+		final Bundle bundle = DslHelper.getDslBundle(languageName);
+		final List<Class<?>> classes = dsl.getEntries().stream().filter(e -> e.getKey().equals("k3"))
+				.findFirst()
+				.map(os -> Arrays.asList(os.getValue().split(",")).stream().map(cn -> loadClass(cn, bundle))
+						.filter(c -> c != null).collect(Collectors.toList()))
+				.orElse(Collections.emptyList()).stream().map(c -> (Class<?>) c).collect(Collectors.toList());
+		this.operationalSemantics.addAll(classes);
 	}
 
 	private Class<?> loadClass(String className, Bundle bundle) {
