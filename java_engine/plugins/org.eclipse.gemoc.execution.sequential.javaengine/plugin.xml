@@ -6,7 +6,8 @@
          name="K3 Rule Executor"
          point="org.eclipse.gemoc.executionframework.event.metalanguage_rule_executor">
       <metalanguage_rule_executor
-            class="org.eclipse.gemoc.execution.sequential.javaengine.K3RuleExecutor">
+            class="org.eclipse.gemoc.execution.sequential.javaengine.K3RuleExecutor"
+            metaprog="org.eclipse.gemoc.metaprog.kermeta3">>
       </metalanguage_rule_executor>
    </extension>
 </plugin>
