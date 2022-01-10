@@ -1,5 +1,17 @@
 # Changelog
 
+## v3.4.0 (10/01/2022)
+
+#### Enhancements:
+
+- [**enhancement**] Event management integration [#21](https://github.com/eclipse/gemoc-studio-execution-java/pull/21)
+
+#### Version upgrades
+
+- [**releng**][**bump**] Bump Studio to 3.4.0 [#20](https://github.com/eclipse/gemoc-studio-execution-java/pull/20)
+
+---
+
 ## v3.3.0 (28/07/2021)
 
 #### Enhancements:
