@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
@@ -289,10 +290,17 @@ public class PlainK3ExecutionEngine extends AbstractCommandBasedSequentialExecut
 	 * java.lang.String)
 	 */
 	public void executeStep(Object caller, final StepCommand command, String className, String methodName) {
-		executeOperation(caller, className, methodName, new Runnable() {
+		executeStep(caller, new Object[0],command, className, methodName);
+	}
+	
+	@Override
+	public void executeStep(Object caller, Object[] parameters, StepCommand command, String className,
+			String methodName) {
+		executeOperation(caller, parameters, className, methodName, new Callable<Object>() {
 			@Override
-			public void run() {
+			public Object call() throws Exception {
 				command.execute();
+				return command.getResult();
 			}
 		});
 	}
