@@ -1,5 +1,22 @@
 # Changelog
 
+## v3.5.0 (30/06/2022)
+
+#### Enhancements:
+
+- [**enhancement**] Initial version of a Webprotocol based EngineAddon server [#26](https://github.com/eclipse/gemoc-studio-execution-java/pull/26)
+
+#### Version upgrades
+
+- [**bump**] Bump to 3.5.0 [#22](https://github.com/eclipse/gemoc-studio-execution-java/pull/22)
+- [**bump**] Bump eclipse 2021 12 [#23](https://github.com/eclipse/gemoc-studio-execution-java/pull/23)
+
+#### Release Engineering
+
+- [**releng**] Use tpd for defining target platform [#24](https://github.com/eclipse/gemoc-studio-execution-java/pull/24)
+
+---
+
 ## v3.4.0 (10/01/2022)
 
 #### Enhancements:
