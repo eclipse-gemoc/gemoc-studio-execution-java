@@ -31,7 +31,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.gemoc.dsl,
  org.eclipse.core.jobs,
  org.eclipse.jdt.core,
- org.eclipse.gemoc.xdsmlframework.commons.ui.k3
+ org.eclipse.gemoc.xdsmlframework.commons.ui.k3,
+ org.eclipse.gemoc.commons.eclipse.pde.ui;bundle-version="3.3.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
