@@ -297,9 +297,9 @@ public class PlainK3ExecutionEngine extends AbstractCommandBasedSequentialExecut
 	@Override
 	public void executeStep(Object caller, Object[] parameters, StepCommand command, String className,
 			String methodName) {
-		executeOperation(caller, parameters, className, methodName, new Callable<Optional<Object>>() {
+		executeOperation(caller, parameters, className, methodName, new Callable<List<Object>>() {
 			@Override
-			public Optional<Object> call() throws Exception {
+			public List<Object> call() throws Exception {
 				command.execute();
 				return command.getResult();
 			}
