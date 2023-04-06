@@ -1,5 +1,25 @@
 # Changelog
 
+## v3.6.0 (06/04/2023)
+
+#### Enhancements:
+
+- [**enhancement**] Manage step return values [#29](https://github.com/eclipse/gemoc-studio-execution-java/pull/29)
+
+#### Bug Fixes:
+
+- [**bug**] Bump to version of k3 including StepCommand return null fix [#30](https://github.com/eclipse/gemoc-studio-execution-java/pull/30)
+
+#### Refactorings
+
+- [**refactoring**]  Split commons eclipse pde to remove UI dependency [#28](https://github.com/eclipse/gemoc-studio-execution-java/pull/28)
+
+#### Version upgrades
+
+- [**bump**] Bump to Eclipse 2022-06 [#27](https://github.com/eclipse/gemoc-studio-execution-java/pull/27)
+
+---
+
 ## v3.5.0 (30/06/2022)
 
 #### Enhancements:
