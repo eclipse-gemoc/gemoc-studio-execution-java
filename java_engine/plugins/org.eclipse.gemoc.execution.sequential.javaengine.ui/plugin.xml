@@ -67,7 +67,7 @@
             description="Create a configuration to launch an Eclipse application in debug mode."
             icon="icons/IconeGemocModel-16.png"
             id="org.eclipse.gemoc.execution.sequential.javaengine.ui.GemocExecutableReflectiveModel"
-            label="Gemoc Sequential eXecutable Model"
+            label="Gemoc Java Sequential eXecutable Model"
             modes="run, debug">
          <configurationType
                id="org.eclipse.gemoc.execution.sequential.javaengine.ui.launcher">
