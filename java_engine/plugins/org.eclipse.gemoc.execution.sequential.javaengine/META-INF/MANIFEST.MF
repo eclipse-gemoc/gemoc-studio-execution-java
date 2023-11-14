@@ -15,7 +15,7 @@ Require-Bundle: org.eclipse.gemoc.xdsmlframework.api;visibility:=reexport,
  org.eclipse.gemoc.trace.gemoc.api;bundle-version="3.0.0";visibility:=reexport,
  org.eclipse.gemoc.executionframework.event.manager,
  org.eclipse.gemoc.dsl.model
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.eclipse.gemoc.execution.sequential.javaengine
 Bundle-Activator: org.eclipse.gemoc.execution.sequential.javaengine.Activator
 Bundle-ActivationPolicy: lazy

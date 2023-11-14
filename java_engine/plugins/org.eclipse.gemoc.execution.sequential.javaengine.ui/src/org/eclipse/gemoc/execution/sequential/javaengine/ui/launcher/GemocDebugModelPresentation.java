@@ -17,7 +17,6 @@ import java.util.Set;
 
 import org.eclipse.debug.core.model.IStackFrame;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
-import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -25,23 +24,21 @@ import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
 import org.eclipse.emf.edit.provider.ReflectiveItemProviderAdapterFactory;
 import org.eclipse.emf.edit.provider.resource.ResourceItemProviderAdapterFactory;
 import org.eclipse.emf.edit.ui.provider.AdapterFactoryLabelProvider;
-import org.eclipse.sirius.ui.business.api.dialect.DialectEditor;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.IEditorInput;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.gemoc.executionframework.engine.ui.provider.DSLVariableLabelDecorator;
-import org.eclipse.gemoc.executionframework.ui.IMSEPresenter;
-
-import org.eclipse.gemoc.trace.commons.model.trace.MSE;
-import org.eclipse.gemoc.trace.commons.model.trace.Step;
-import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.gemoc.dsl.debug.Variable;
 import org.eclipse.gemoc.dsl.debug.ide.adapter.DSLStackFrameAdapter;
-import org.eclipse.gemoc.dsl.debug.ide.adapter.value.DSLObjectValue;
 import org.eclipse.gemoc.dsl.debug.ide.adapter.variable.DSLObjectVariable;
 import org.eclipse.gemoc.dsl.debug.ide.sirius.ui.DSLDebugModelPresentation;
 import org.eclipse.gemoc.dsl.debug.ide.sirius.ui.SiriusEditorUtils;
 import org.eclipse.gemoc.dsl.debug.provider.CustomDebugItemProviderAdapterFactory;
+import org.eclipse.gemoc.executionframework.engine.ui.provider.DSLVariableLabelDecorator;
+import org.eclipse.gemoc.executionframework.ui.IMSEPresenter;
+import org.eclipse.gemoc.trace.commons.model.trace.MSE;
+import org.eclipse.gemoc.trace.commons.model.trace.Step;
+import org.eclipse.jface.viewers.ILabelDecorator;
+import org.eclipse.sirius.ui.business.api.dialect.DialectEditor;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
 
 public class GemocDebugModelPresentation extends DSLDebugModelPresentation {
 

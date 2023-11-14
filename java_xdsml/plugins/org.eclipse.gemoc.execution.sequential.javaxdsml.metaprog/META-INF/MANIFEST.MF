@@ -4,7 +4,7 @@ Bundle-Name: Kermeta3-approach
 Bundle-SymbolicName: org.eclipse.gemoc.execution.sequential.javaxdsml.metaprog;singleton:=true
 Bundle-Version: 4.0.0.qualifier
 Automatic-Module-Name: metaprogramming.kermeta3-approach
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.14.0",
  org.eclipse.gemoc.dsl.model,
  org.eclipse.emf.ecore,
