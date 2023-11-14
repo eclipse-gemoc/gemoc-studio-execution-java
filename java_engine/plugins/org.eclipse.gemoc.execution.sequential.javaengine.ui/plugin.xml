@@ -87,11 +87,11 @@
 		     </with>
             </enablement>
             <contextLabel
-                  label="Gemoc Sequential eXecutable Model"
+                  label="Gemoc Java Sequential eXecutable Model"
                   mode="run">
             </contextLabel>
             <contextLabel
-                  label="Gemoc Sequential eXecutable Model"
+                  label="Gemoc Java Sequential eXecutable Model"
                   mode="debug">
             </contextLabel>
          </contextualLaunch>
