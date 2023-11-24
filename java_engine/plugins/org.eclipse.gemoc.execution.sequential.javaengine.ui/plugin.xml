@@ -13,57 +13,6 @@
 
 <plugin>
 
-<!--   <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            adaptable="true"
-            objectClass="org.eclipse.core.resources.IProject"
-            nameFilter="*"
-            id="org.eclipse.gemoc.gemoc_modeling_workbench.ui.addnature.contribution">
-         <action
-               class="org.eclipse.gemoc.gemoc_modeling_workbench.ui.builder.ToggleNatureAction"
-               enablesFor="+"
-               icon="icons/IconeGemocModel-16.png"
-               id="org.eclipse.gemoc.gemoc_modeling_workbench.ui.addRemoveNatureAction"
-               label="Add Executable Modeling Nature"
-               menubarPath="org.eclipse.ui.projectConfigure/additions">
-         </action>
-         <visibility>
-         <and>
-            <not>
-                <objectState name="projectNature" value="org.eclipse.gemoc.gemoc_modeling_workbench.ui.gemocReflectiveModelNature"/>
-            </not>
-            <objectClass name="org.eclipse.core.resources.IProject" />
-          </and>
-         </visibility>
-      </objectContribution>
-      <objectContribution
-            adaptable="true"
-            objectClass="org.eclipse.core.resources.IProject"
-            nameFilter="*"
-            id="org.eclipse.gemoc.gemoc_modeling_workbench.ui.removenature.contribution">
-         <action
-               class="org.eclipse.gemoc.gemoc_modeling_workbench.ui.builder.ToggleNatureAction"
-               enablesFor="+"
-               icon="icons/IconeGemocModel-16.png"
-               id="org.eclipse.gemoc.gemoc_modeling_workbench.ui.addRemoveNatureAction"
-               label="Remove Executable Modeling Nature (Reflective)"
-               menubarPath="org.eclipse.ui.projectConfigure/additions">
-         </action>
-         
-	    <visibility>
-	       <and>
-	          <objectClass
-	                name="org.eclipse.core.resources.IProject">
-	          </objectClass>
-	          <objectState
-	                name="projectNature"
-	                value="org.eclipse.gemoc.gemoc_modeling_workbench.ui.gemocReflectiveModelNature">
-	          </objectState>
-	       </and>
-	    </visibility>
-      </objectContribution>
-   </extension> -->
    <!-- definitions of launch menu -->
    <extension point="org.eclipse.core.expressions.definitions">
       <definition id="onValidationPerspective">
@@ -111,16 +60,6 @@
            type="org.eclipse.gemoc.execution.sequential.javaengine.ui.launcher">
 	    </launchConfigurationTabGroup>
 	</extension>
-    <extension
-          point="org.eclipse.core.expressions.propertyTesters">
-       <propertyTester
-             class="org.eclipse.gemoc.execution.sequential.javaengine.ui.propertytesters.GemocSequentialPropertyTester"
-             id="org.eclipse.gemoc.execution.sequential.javaengine.ui.propertytesters.GemocSequentialPropertyTester"
-             namespace="org.eclipse.gemoc.execution.sequential.javaengine.ui.propertytesters"
-             properties="isModel, isExecutableDomainSpecificModel"
-             type="org.eclipse.core.runtime.IAdaptable">
-       </propertyTester>
-    </extension>
 	<extension
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
@@ -128,7 +67,7 @@
             description="Create a configuration to launch an Eclipse application in debug mode."
             icon="icons/IconeGemocModel-16.png"
             id="org.eclipse.gemoc.execution.sequential.javaengine.ui.GemocExecutableReflectiveModel"
-            label="Gemoc Sequential eXecutable Model"
+            label="Gemoc Java Sequential eXecutable Model"
             modes="run, debug">
          <configurationType
                id="org.eclipse.gemoc.execution.sequential.javaengine.ui.launcher">
@@ -139,7 +78,7 @@
 		     		<count value="1"/>
 	      			<iterate>
 	       				<or>
-	        				<test property="org.eclipse.gemoc.execution.sequential.javaengine.ui.propertytesters.isExecutableDomainSpecificModel"/>
+	        				<test property="org.eclipse.gemoc.executionframework.engine.ui.propertytesters.isExecutableDomainSpecificModel"/>
 	        				<test property="org.eclipse.debug.ui.matchesPattern"
 	                        	value="*.xmi">
 	                     	</test>
@@ -148,11 +87,11 @@
 		     </with>
             </enablement>
             <contextLabel
-                  label="Gemoc Sequential eXecutable Model"
+                  label="Gemoc Java Sequential eXecutable Model"
                   mode="run">
             </contextLabel>
             <contextLabel
-                  label="Gemoc Sequential eXecutable Model"
+                  label="Gemoc Java Sequential eXecutable Model"
                   mode="debug">
             </contextLabel>
          </contextualLaunch>
@@ -288,12 +227,6 @@
                </command>
             </toolbar>
          </menuContribution>
-      </extension>
-      <extension
-            point="org.eclipse.ui.startup">
-         <startup
-               class="org.eclipse.gemoc.execution.sequential.javaengine.ui.ModelingWorkbenchEarlyStartup">
-         </startup>
       </extension>
       <extension
             point="org.eclipse.ui.views">
