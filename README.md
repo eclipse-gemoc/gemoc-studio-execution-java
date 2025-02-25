@@ -17,5 +17,5 @@ JAVA engine for GEMOC
 The repository includes the component related to ___java_execution___. Its contains an implementation of the GEMOC framework using a sequential java engine (based on xtend+k3).  
 
 # Development
-- Continuous integration on [Eclipse CI](https://ci.eclipse.org/gemoc/job/gemoc-studio/)
-- [Instructions for building](https://github.com/eclipse/gemoc-studio/tree/master/dev_support/full_compilation)
+- Continuous integration on [Eclipse CI](https://ci.eclipse.org/gemoc/job/gemoc-studio-integration/)
+- [Instructions for building](https://github.com/eclipse-gemoc/gemoc-studio/tree/master/dev_support/tycho_full_compilation)
